@@ -72,16 +72,18 @@ export default {
     },
     methods: {
         gogoQuery() {
-            this.isLoading = true
-            console.log('always')
 
             if (this.userInput === '' || this.queryType === null) {
                 this.formInputIsInvalid = true
                 console.log(this.formInputIsInvalid)
                 return;
             }
+            this.isLoading = true
 
-            console.log("never")
+            //
+            // Query 
+            //
+
             this.isLoading = false
             this.resultsBack = true
         },
