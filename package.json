@@ -7,6 +7,8 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "export-from-json": "^1.7.0",
+    "json2csv": "^5.0.7",
     "vue": "^3.2.37"
   },
   "devDependencies": {

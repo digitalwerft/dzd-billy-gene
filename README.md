@@ -27,3 +27,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
+### PACKAGES TO ADD 
+
+npm install export-from-json --save
