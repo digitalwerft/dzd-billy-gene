@@ -1,5 +1,3 @@
-import time 
-
 <template>
     <section>
         <base-dialog v-if="formInputIsInvalid" title="Invalid Input" @close="confirmError">
@@ -43,29 +41,40 @@ import time
                 </div>
             </form>
         </base-card>
-        <base-card>
-            <base-button @click="csv_test()">csv-test</base-button>
-        </base-card>
     </section>
-    <div v-if="isLoading">
+    <!-- <base-card>
+        <base-button @click="test">Hier test</base-button>
+    </base-card> -->
+    <base-dialog v-if="isLoading" title="Loading">
+        <template #default>
+            <h3>The monkeys in the backroom are busy looking around...please be patient</h3>
+            <div style="text-align: center;" class="loader"></div>
+        </template>
+    </base-dialog>
+    <!-- <div v-if="isLoading">
         <base-card>
             <h1>The monkeys in the backroom are busy looking around...please be patient</h1>
+            <div class="loader"></div>
         </base-card>
-    </div>
-    <base-card v-if="mydata">
+    </div> -->
+    <base-card v-if="mydata && validResult">
         <base-button @click="downloadJSON">Download Data (JSON)</base-button>
-        <base-button @click="csv_test">Download Data (CSV)</base-button>
-        <h3>First 25 results:</h3>
-        <div v-for="entry in mydata.slice(0,25)" :key="entry.ArticleTitle">
-            <!-- <base-card> -->
+        <base-button @click="downloadCSV" style="float: right">Download Data (CSV)</base-button>
+        <h3>First 10 results:</h3>
+        <div v-for="entry in mydata.slice(0,10)" :key="entry.ArticleTitle">
             <p>Gene: {{entry.Sid}}</p>
             <p>Article: {{entry.ArticleTitle}}</p>
             <p>---</p>
-            <!-- <h1>{{ mydata }}</h1> -->
-            <!-- </base-card> -->
+
         </div>
     </base-card>
-    <div v-if="resultsBack">
+    <div v-if="!validResult">
+        <base-card>
+            <h2>There was no result for your input:</h2>
+            <h4>{{userInput}}</h4>
+        </base-card>
+    </div>
+    <div v-if="resultsBack && validResult">
         <base-card>
             <h1>result</h1>
             <h2>{{ userInput }}</h2>
@@ -79,6 +88,7 @@ import BaseButton from '../UI/BaseButton.vue';
 import BaseCard1 from '../UI/BaseCard.vue';
 import BaseButton1 from '../UI/BaseButton.vue';
 import exportFromJSON from "export-from-json"
+import BaseCard2 from '../UI/BaseCard.vue';
 
 export default {
     data() {
@@ -91,21 +101,7 @@ export default {
             formInputIsInvalid: false,
             mydata: null,
             urlParameters: "",
-            json_data: [
-                {
-                    "car": "Audi",
-                    "price": 40000,
-                    "color": "blue"
-                }, {
-                    "car": "BMW",
-                    "price": 35000,
-                    "color": "black"
-                }, {
-                    "car": "Porsche",
-                    "price": 60000,
-                    "color": "green"
-                }
-            ]
+            validResult: true,
         };
     },
     methods: {
@@ -137,6 +133,9 @@ export default {
                         return response.json();
                     }
                 }).then((data) => {
+                    if (data.length === 0) {
+                        this.validResult = false
+                    }
                     this.isLoading = false;
                     this.resultsBack = true;
                     this.mydata = data;
@@ -153,6 +152,9 @@ export default {
                         return response.json();
                     }
                 }).then((data) => {
+                    if (data.length === 0) {
+                        this.validResult = false
+                    }
                     this.isLoading = false;
                     this.resultsBack = true;
                     this.mydata = data;
@@ -167,16 +169,23 @@ export default {
                 }
                 fetch("http://127.0.0.1:8000/articlebygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
-                        // console.log(response)
                         return response.json();
                     }
                 }).then((data) => {
                     this.isLoading = false;
                     this.resultsBack = true;
                     this.mydata = data;
+
+                    if (data.length === 0) {
+                        this.validResult = false
+                    }
+
+                    // console.log("here is stuff: " + data)
+                    // console.log(data.length === 0)
                     // console.log("here is my data test " + this.mydata);
+                    // console.log(this.mydata.EventTarget.length === 0)
+                    // console.log(typeof (this.mydata))
                 });
-                // console.log("here is my data " + this.mydata);
                 this.urlParameters = "";
             }
         },
@@ -191,14 +200,14 @@ export default {
         confirmError() {
             this.formInputIsInvalid = false;
         },
-        getFileName() {
-            if (!(this.userInput.split(',')[1] === undefined)) {
-                return this.userInput.split(',')[0].trim() + ', ' + this.userInput.split(',')[1].trim()
-            }
-            else {
-                return this.userInput.split(',')[0].trim()
-            }
-        },
+        // getFileName() {
+        //     if (!(this.userInput.split(',')[1] === undefined)) {
+        //         return this.userInput.split(',')[0].trim() + ', ' + this.userInput.split(',')[1].trim()
+        //     }
+        //     else {
+        //         return this.userInput.split(',')[0].trim()
+        //     }
+        // },
         downloadJSON(contentType) {
             if (!contentType)
                 contentType = "application/octet-stream";
@@ -206,47 +215,18 @@ export default {
             var a = document.createElement("a");
             var blob = new Blob([JSON.stringify(obj, null, 2)], { "type": contentType });
             a.href = window.URL.createObjectURL(blob);
-            a.download = this.getFileName();
+            a.download = new Date().toString()
             a.click();
         },
-        downloadCSV(contentType) {
-            if (!contentType)
-                contentType = "application/octet-stream";
-            //const { Parser } = require('json2csv');
-            const json2csvParser = new Parser();
-            const obj = json2csvParser.parse(this.mydata);
-            //const obj = this.mydata;
-            var a = document.createElement("a");
-            var blob = new Blob([JSON.stringify(obj, null, 2)], { "type": contentType });
-            a.href = window.URL.createObjectURL(blob);
-            a.download = this.getFileName();
-            a.click();
-        },
-        csv_test() {
-            const myCars = [
-                {
-                    "car": "Audi",
-                    "price": 40000,
-                    "color": "blue"
-                }, {
-                    "car": "BMW",
-                    "price": 35000,
-                    "color": "black"
-                }, {
-                    "car": "Porsche",
-                    "price": 60000,
-                    "color": "green"
-                }
-            ];
-
+        downloadCSV() {
             const data = this.mydata
-            const fileName = "csv-test"
+            const fileName = new Date().toString()
             const exportType = exportFromJSON.types.csv;
 
             exportFromJSON({ data, fileName, exportType })
-        }
+        },
     },
-    components: { BaseCard, BaseButton, BaseCard1, BaseButton1 }
+    components: { BaseCard, BaseButton, BaseCard1, BaseButton1, BaseCard2 }
 }
 </script>
 
@@ -267,5 +247,36 @@ input[type='text'] {
 
 .form-control.invalid label {
     color: red
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #5c0556;
+    border-bottom: 16px solid #5c0556;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>
