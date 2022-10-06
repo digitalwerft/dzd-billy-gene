@@ -18,9 +18,23 @@
                         <label for="input">
                             <h4> Your Input: </h4>
                         </label>
-                        <textarea id="input" name="input" v-model.trim="userInput" rows="4" cols="50"
+                        <textarea id="input" name="input" v-model.trim="userInput" rows="6" cols="33"
                             placeholder="Please seperate you entries via ','" @blur="validateInput"></textarea>
                         <p style="color: red;" v-if="inputValidity === 'invalid'">Please give me an input</p>
+                    </div>
+                </keep-alive>
+                <keep-alive>
+                    <div>
+                        <label for="input">
+                            <h4> MeSH-Terms: </h4>
+                        </label>
+                        <textarea id="meshTerms" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
+                            placeholder="Please seperate you entries via ','"></textarea>
+                        <label for="input">
+                            <h4> Blocklist: </h4>
+                        </label>
+                        <textarea id="blockList" name="blockList" v-model.trim="blockList" rows="6" cols="33"
+                            placeholder="Please seperate you entries via ','"></textarea>
                     </div>
                 </keep-alive>
                 <br>
@@ -43,14 +57,15 @@
         </base-card>
     </section>
     <!-- <base-card>
-        <base-button @click="test">Hier test</base-button>
+        <h2>{{this.meshTerms}}</h2>
+        <h2>{{this.blockList}}</h2>
     </base-card> -->
-    <base-dialog v-if="isLoading" title="Loading">
+    <base-dialog-no-button v-if="isLoading" title="Loading">
         <template #default>
             <h3>The monkeys in the backroom are busy looking around...please be patient</h3>
             <div style="text-align: center;" class="loader"></div>
         </template>
-    </base-dialog>
+    </base-dialog-no-button>
     <!-- <div v-if="isLoading">
         <base-card>
             <h1>The monkeys in the backroom are busy looking around...please be patient</h1>
@@ -85,15 +100,15 @@
 <script>
 import BaseCard from '../UI/BaseCard.vue'
 import BaseButton from '../UI/BaseButton.vue';
-import BaseCard1 from '../UI/BaseCard.vue';
-import BaseButton1 from '../UI/BaseButton.vue';
 import exportFromJSON from "export-from-json"
-import BaseCard2 from '../UI/BaseCard.vue';
+import BaseDialogNoButton from "../UI/BaseDialogNoButton.vue"
 
 export default {
     data() {
         return {
             userInput: "",
+            meshTerms: "",
+            blockList: "",
             queryType: null,
             resultsBack: false,
             isLoading: false,
@@ -108,6 +123,7 @@ export default {
         gogoQuery() {
             this.resultsBack = false;
             this.mydata = null;
+            this.validResult = true
             const geneList = this.userInput.split(",");
             for (let i = 0; i < geneList.length; i++) {
                 geneList[i] = geneList[i].trim();
@@ -200,14 +216,6 @@ export default {
         confirmError() {
             this.formInputIsInvalid = false;
         },
-        // getFileName() {
-        //     if (!(this.userInput.split(',')[1] === undefined)) {
-        //         return this.userInput.split(',')[0].trim() + ', ' + this.userInput.split(',')[1].trim()
-        //     }
-        //     else {
-        //         return this.userInput.split(',')[0].trim()
-        //     }
-        // },
         downloadJSON(contentType) {
             if (!contentType)
                 contentType = "application/octet-stream";
@@ -226,7 +234,7 @@ export default {
             exportFromJSON({ data, fileName, exportType })
         },
     },
-    components: { BaseCard, BaseButton, BaseCard1, BaseButton1, BaseCard2 }
+    components: { BaseCard, BaseButton, BaseDialogNoButton }
 }
 </script>
 
