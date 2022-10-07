@@ -131,6 +131,22 @@ export default {
                     geneList.splice(i, 1);
                 }
             }
+            const meshList = this.meshTerms.split(",");
+            for (let i = 0; i < meshList.length; i++) {
+                meshList[i] = meshList[i].trim();
+                if (meshList[i].length === 0 || meshList[i].includes(" ")) {
+                    meshList.splice(i, 1);
+                }
+            }
+
+            const blockList = this.blockList.split(",");
+            for (let i = 0; i < blockList.length; i++) {
+                blockList[i] = blockList[i].trim();
+                if (blockList[i].length === 0 || blockList[i].includes(" ")) {
+                    blockList.splice(i, 1);
+                }
+            }
+
             if (this.userInput === "" || this.queryType === null) {
                 this.formInputIsInvalid = true;
                 return;
@@ -143,6 +159,14 @@ export default {
                         this.urlParameters += "&";
                     }
                 }
+                for (let i = 0; i < meshList.length; i++) {
+                    this.urlParameters += "&m=" + meshList[i];
+                }
+
+                for (let i = 0; i < blockList.length; i++) {
+                    this.urlParameters += "&b=" + blockList[i];
+                }
+
                 fetch("http://127.0.0.1:8000/genesbygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         // console.log(response);
