@@ -1,3 +1,17 @@
+# How to start in Docker
+
+Build the image: 
+
+```
+docker build -t python_fastapi ..  
+```
+
+Run the image: 
+
+```
+docker run -p 8080:8080 vue_app   
+```
+
 # vue-dife
 
 This template should help get you started developing with Vue 3 in Vite.
