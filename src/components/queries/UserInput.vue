@@ -41,7 +41,7 @@
                 <h4>Query Type</h4>
                 <keep-alive>
                     <div class="form-control">
-                        <input type="radio" id="query-genes" value="genes" name="query" v-model="queryType" checked />
+                        <input type="radio" id="query-genes" value="genes" name="query" v-model="queryType" />
                         <label for="query-genes">Genes</label>
                         <input type="radio" id="query-protein" value="protein" name="query" v-model="queryType"
                             disabled />
