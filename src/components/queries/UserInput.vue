@@ -169,7 +169,7 @@ export default {
                     this.urlParameters += "&b=" + blockList[i];
                 }
 
-                fetch("http://127.0.0.1:8000/genesbygenelist/?" + this.urlParameters).then((response) => {
+                fetch("http://0.0.0.1:8000/genesbygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -188,7 +188,7 @@ export default {
                 this.urlParameters = "";
             }
             if (this.queryType === "protein") {
-                fetch("http://127.0.0.1:8000/proteinbygenelist/?").then((response) => {
+                fetch("http://0.0.0.1:8000/proteinbygenelist/?").then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -209,7 +209,7 @@ export default {
                         this.urlParameters += "&";
                     }
                 }
-                fetch("http://127.0.0.1:8000/articlebygenelist/?" + this.urlParameters).then((response) => {
+                fetch("http://0.0.0.1:8000/articlebygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         return response.json();
                     }
