@@ -78,9 +78,9 @@
         <base-button @click="downloadJSON">Download Data (JSON)</base-button>
         <base-button @click="downloadCSV" style="float: right">Download Data (CSV)</base-button>
         <h3>First 10 results:</h3>
-        <div v-for="entry in mydata.slice(0,10)" :key="entry.ArticleTitle">
-            <p>Gene: {{entry.Sid}}</p>
-            <p>Article: {{entry.ArticleTitle}}</p>
+        <div v-for="entry in mydata.slice(0, 10)" :key="entry.ArticleTitle">
+            <p>Gene: {{ entry.Sid }}</p>
+            <p>Article: {{ entry.ArticleTitle }}</p>
             <p>---</p>
 
         </div>
@@ -88,7 +88,7 @@
     <div v-if="!validResult">
         <base-card>
             <h2>There was no result for your input:</h2>
-            <h4>{{userInput}}</h4>
+            <h4>{{ userInput }}</h4>
         </base-card>
     </div>
     <div v-if="resultsBack && validResult">
@@ -153,7 +153,13 @@ export default {
                 this.formInputIsInvalid = true;
                 return;
             }
+
             this.isLoading = true;
+
+            ////
+            // Gene Query
+            ////
+
             if (this.queryType === "genes") {
                 for (let i = 0; i < geneList.length; i++) {
                     this.urlParameters += "g=" + geneList[i];
@@ -169,7 +175,7 @@ export default {
                     this.urlParameters += "&b=" + blockList[i];
                 }
 
-                fetch("http://0.0.0.1:8000/genesbygenelist/?" + this.urlParameters).then((response) => {
+                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -187,8 +193,13 @@ export default {
                 //console.log(typeof this.mydata[0])
                 this.urlParameters = "";
             }
+
+            ////
+            // Protein Query
+            ////
+
             if (this.queryType === "protein") {
-                fetch("http://0.0.0.1:8000/proteinbygenelist/?").then((response) => {
+                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/proteinbygenelist/?").then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -209,7 +220,7 @@ export default {
                         this.urlParameters += "&";
                     }
                 }
-                fetch("http://0.0.0.1:8000/articlebygenelist/?" + this.urlParameters).then((response) => {
+                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         return response.json();
                     }
@@ -222,11 +233,6 @@ export default {
                         this.validResult = false
                     }
 
-                    // console.log("here is stuff: " + data)
-                    // console.log(data.length === 0)
-                    // console.log("here is my data test " + this.mydata);
-                    // console.log(this.mydata.EventTarget.length === 0)
-                    // console.log(typeof (this.mydata))
                 });
                 this.urlParameters = "";
             }
