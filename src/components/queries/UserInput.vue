@@ -1,5 +1,3 @@
-<!-- TEST TEST TEST -->
-
 <template>
     <section>
         <base-dialog v-if="formInputIsInvalid" title="Invalid Input" @close="confirmError">
@@ -60,22 +58,12 @@
             </form>
         </base-card>
     </section>
-    <!-- <base-card>
-        <h2>{{this.meshTerms}}</h2>
-        <h2>{{this.blockList}}</h2>
-    </base-card> -->
     <base-dialog-no-button v-if="isLoading" title="Loading">
         <template #default>
             <h3>The monkeys in the backroom are busy looking around...please be patient</h3>
             <div style="text-align: center;" class="loader"></div>
         </template>
     </base-dialog-no-button>
-    <!-- <div v-if="isLoading">
-        <base-card>
-            <h1>The monkeys in the backroom are busy looking around...please be patient</h1>
-            <div class="loader"></div>
-        </base-card>
-    </div> -->
     <base-card v-if="mydata && validResult">
         <base-button @click="downloadJSON">Download Data (JSON)</base-button>
         <base-button @click="downloadCSV" style="float: right">Download Data (CSV)</base-button>
@@ -104,8 +92,9 @@
 <script>
 import BaseCard from '../UI/BaseCard.vue'
 import BaseButton from '../UI/BaseButton.vue';
-import exportFromJSON from "export-from-json"
 import BaseDialogNoButton from "../UI/BaseDialogNoButton.vue"
+import exportFromJSON from "export-from-json"
+import { generate, parse, transform, stringify } from 'csv';
 
 export default {
     data() {
@@ -257,15 +246,23 @@ export default {
             var a = document.createElement("a");
             var blob = new Blob([JSON.stringify(obj, null, 2)], { "type": contentType });
             a.href = window.URL.createObjectURL(blob);
-            a.download = new Date().toString()
+            // Name transformation
+            a.download = new Date().toISOString().split('.')[0];;
+
             a.click();
         },
         downloadCSV() {
+            const parser = parse();
             const data = this.mydata
-            const fileName = new Date().toString()
+            // Name transformation
+            const fileName = new Date().toISOString().split('.')[0];;
             const exportType = exportFromJSON.types.csv;
 
-            exportFromJSON({ data, fileName, exportType })
+            const csv = exportFromJSON({ data, fileName, exportType })
+            csv.parse({
+                delimiter: ';'
+            })
+            return csv
         },
     },
     components: { BaseCard, BaseButton, BaseDialogNoButton }
