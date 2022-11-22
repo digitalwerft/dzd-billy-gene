@@ -1,3 +1,5 @@
+<!-- TEST TEST TEST -->
+
 <template>
     <section>
         <base-dialog v-if="formInputIsInvalid" title="Invalid Input" @close="confirmError">
