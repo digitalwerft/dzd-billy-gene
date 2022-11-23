@@ -27,6 +27,14 @@
                     <div>
                         <label for="input">
                             <h4> MeSH-Terms: </h4>
+                            <div class="form-control">
+                                <input type="radio" id="mesh-and-query" value="and_mesh" name="MeSH"
+                                    v-model="meshQueryType" checked />
+                                <label for="mesh-and-query">Combined MeSH-Terms</label>
+                                <input type="radio" id="mesh-or-query" value="or_mesh" name="MeSH"
+                                    v-model="meshQueryType" />
+                                <label for="mesh-or-query">Separate MeSH-Terms</label>
+                            </div>
                         </label>
                         <textarea id="meshTerms" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
                             placeholder="Please seperate you entries via ','"></textarea>
@@ -66,7 +74,14 @@
     </base-dialog-no-button>
     <base-card v-if="mydata && validResult">
         <base-button @click="downloadJSON">Download Data (JSON)</base-button>
-        <base-button @click="downloadCSV" style="float: right">Download Data (CSV)</base-button>
+
+        <base-button style="float: right">
+            <download-csv :data="this.mydata" delimiter=";" :name="getName()">
+                Download CSV
+            </download-csv>
+        </base-button>
+
+        <!-- <base-button @click="downloadCSV" style="float: right">Download Data (CSV)</base-button> -->
         <h3>First 10 results:</h3>
         <div v-for="entry in mydata.slice(0, 10)" :key="entry.ArticleTitle">
             <p>Gene: {{ entry.Sid }}</p>
@@ -87,6 +102,11 @@
             <h2>{{ userInput }}</h2>
         </base-card>
     </div>
+    <div v-if="resultsBack && validResult">
+        <base-card>
+            <p>{{ meshQueryType }}</p>
+        </base-card>
+    </div>
 </template>
 
 <script>
@@ -94,7 +114,6 @@ import BaseCard from '../UI/BaseCard.vue'
 import BaseButton from '../UI/BaseButton.vue';
 import BaseDialogNoButton from "../UI/BaseDialogNoButton.vue"
 import exportFromJSON from "export-from-json"
-import { generate, parse, transform, stringify } from 'csv';
 
 export default {
     data() {
@@ -103,6 +122,7 @@ export default {
             meshTerms: "",
             blockList: "",
             queryType: null,
+            meshQueryType: "and_mesh",
             resultsBack: false,
             isLoading: false,
             inputValidity: "pending",
@@ -110,10 +130,13 @@ export default {
             mydata: null,
             urlParameters: "",
             validResult: true,
+            fileName: "",
+            query: ""
         };
     },
     methods: {
         gogoQuery() {
+            console.log(this.meshQueryType)
             this.resultsBack = false;
             this.mydata = null;
             this.validResult = true
@@ -152,6 +175,7 @@ export default {
             ////
 
             if (this.queryType === "genes") {
+                this.urlParameters += "mqt=" + this.meshQueryType + "&"
                 for (let i = 0; i < geneList.length; i++) {
                     this.urlParameters += "g=" + geneList[i];
                     if (i != geneList.length - 1) {
@@ -166,7 +190,9 @@ export default {
                     this.urlParameters += "&b=" + blockList[i];
                 }
 
-                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/?" + this.urlParameters).then((response) => {
+                //http://127.0.0.1:8000/articlebygenelist/?
+                //https://restapi.connect.dzd-ev.de/articlebygenelist/?
+                fetch("http://127.0.0.1:8000/genesbygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -179,9 +205,7 @@ export default {
                     this.resultsBack = true;
                     this.mydata = data;
                 });
-                // console.log(typeof this.mydata)
-                // console.log(this.mydata)
-                //console.log(typeof this.mydata[0])
+
                 this.urlParameters = "";
             }
 
@@ -247,22 +271,13 @@ export default {
             var blob = new Blob([JSON.stringify(obj, null, 2)], { "type": contentType });
             a.href = window.URL.createObjectURL(blob);
             // Name transformation
-            a.download = new Date().toISOString().split('.')[0];;
+            a.download = new Date().toISOString().split('.')[0] + this.meshQueryType
 
             a.click();
         },
-        downloadCSV() {
-            const parser = parse();
-            const data = this.mydata
-            // Name transformation
-            const fileName = new Date().toISOString().split('.')[0];;
-            const exportType = exportFromJSON.types.csv;
-
-            const csv = exportFromJSON({ data, fileName, exportType })
-            csv.parse({
-                delimiter: ';'
-            })
-            return csv
+        getName() {
+            const fileName = new Date().toISOString().split('.')[0] + this.meshQueryType
+            return fileName
         },
     },
     components: { BaseCard, BaseButton, BaseDialogNoButton }
