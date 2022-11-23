@@ -8,9 +8,11 @@
   },
   "dependencies": {
     "csv": "^6.2.2",
+    "csv-parse": "^5.3.2",
     "export-from-json": "^1.7.0",
     "json2csv": "^5.0.7",
-    "vue": "^3.2.37"
+    "vue": "^3.2.37",
+    "vue-json-csv": "^2.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.0.1",
