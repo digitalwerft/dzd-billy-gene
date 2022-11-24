@@ -187,7 +187,7 @@ export default {
 
                 //http://127.0.0.1:8000/articlebygenelist/?
                 //https://restapi.connect.dzd-ev.de/articlebygenelist/?
-                fetch("https://restapi.connect.dzd-ev.de/genesbygenelist/?" + this.urlParameters).then((response) => {
+                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/?" + this.urlParameters).then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
@@ -209,7 +209,7 @@ export default {
             ////
 
             if (this.queryType === "protein") {
-                fetch("https://restapi.connect.dzd-ev.de/articlebygenelist/proteinbygenelist/?").then((response) => {
+                fetch("https://restapi.connect.dzd-ev.de/proteinbygenelist/?").then((response) => {
                     if (response.ok) {
                         // console.log(response);
                         return response.json();
