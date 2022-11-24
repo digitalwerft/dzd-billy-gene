@@ -102,11 +102,6 @@
             <h2>{{ userInput }}</h2>
         </base-card>
     </div>
-    <div v-if="resultsBack && validResult">
-        <base-card>
-            <p>{{ meshQueryType }}</p>
-        </base-card>
-    </div>
 </template>
 
 <script>
