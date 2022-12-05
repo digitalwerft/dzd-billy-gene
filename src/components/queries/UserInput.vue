@@ -10,7 +10,7 @@
             </template>
         </base-dialog>
         <base-card>
-            <h2>DZD Query Machine (Alpha)</h2>
+            <h2>(Alpha version)</h2>
             <br>
             <form @submit.prevent="gogoQuery">
                 <keep-alive>
@@ -98,15 +98,15 @@
     </div>
     <div v-if="resultsBack && validResult">
         <base-card>
-            <h1>result</h1>
+            <h1>Gene List</h1>
             <h2>{{ userInput }}</h2>
         </base-card>
     </div>
-    <div v-if="resultsBack && validResult">
+    <!-- <div v-if="resultsBack && validResult">
         <base-card>
             <p>{{ meshQueryType }}</p>
         </base-card>
-    </div>
+    </div> -->
 </template>
 
 <script>
@@ -306,8 +306,8 @@ input[type='text'] {
 .loader {
     border: 16px solid #f3f3f3;
     border-radius: 50%;
-    border-top: 16px solid #5c0556;
-    border-bottom: 16px solid #5c0556;
+    border-top: 16px solid #e42010;
+    border-bottom: 16px solid #e42010;
     width: 120px;
     height: 120px;
     -webkit-animation: spin 2s linear infinite;

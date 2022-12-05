@@ -7,6 +7,7 @@ import BaseDialog from './components/UI/BaseDialog.vue'
 import BaseDialogNoButton from './components/UI/BaseDialogNoButton.vue'
 import JsonCSV from 'vue-json-csv'
 
+
 const app = createApp(App)
 
 app.component('base-card', BaseCard)
