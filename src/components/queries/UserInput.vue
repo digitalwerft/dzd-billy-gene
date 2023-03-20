@@ -10,15 +10,13 @@
             </template>
         </base-dialog>
         <base-card>
-            <h2>(Alpha version)</h2>
-            <br>
             <form @submit.prevent="gogoQuery">
                 <keep-alive>
                     <div class="form-control" :class="{ invalid: inputValidity === 'invalid' }">
                         <label for="input">
                             <h4> Your Input: </h4>
                         </label>
-                        <textarea id="input" name="input" v-model.trim="userInput" rows="6" cols="33"
+                        <textarea id="input" class="form__control" name="input" v-model.trim="userInput" rows="6" cols="33"
                             placeholder="Please seperate you entries via ','" @blur="validateInput"></textarea>
                         <p style="color: red;" v-if="inputValidity === 'invalid'">Please give me an input</p>
                     </div>
@@ -36,12 +34,12 @@
                                 <label for="mesh-or-query">Separate MeSH-Terms</label>
                             </div>
                         </label>
-                        <textarea id="meshTerms" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
+                        <textarea id="meshTerms" class="form__control" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
                             placeholder="Please seperate you entries via ','"></textarea>
                         <label for="input">
                             <h4> Blocklist: </h4>
                         </label>
-                        <textarea id="blockList" name="blockList" v-model.trim="blockList" rows="6" cols="33"
+                        <textarea id="blockList"  class="form__control" name="blockList" v-model.trim="blockList" rows="6" cols="33"
                             placeholder="Please seperate you entries via ','"></textarea>
                     </div>
                 </keep-alive>
