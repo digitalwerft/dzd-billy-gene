@@ -1,0 +1,270 @@
+// define HSL color variable
+@mixin define-color-HSL($color, $hue, $saturation, $lightness) {
+  #{$color}: unquote("hsl(#{$hue}, #{$saturation}, #{$lightness})");
+  #{$color}-h: #{$hue};
+  #{$color}-s: #{$saturation};
+  #{$color}-l: #{$lightness};
+}
+
+@mixin shadeColor($color, $name, $mode: "middle") {
+}
+
+@mixin generateSwatch($color, $mode: "middle") {
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+
+  @if $mode == "middle" {
+    @for $i from 1 through 9 {
+      @if $i == 5 {
+        #{$color}-#{$i}00: var($color);
+      } @else if $i < 5 {
+        $num: (5 - $i) * 2;
+        #{$color}-#{$i}00: hsl(
+          var($color + "-h"),
+          calc(var(#{$color}-s) * 0.8),
+          calc(var(#{$color}-l) + (100% - var(#{$color}-l)) * #{"0." + $num})
+        );
+      } @else if $i > 5 {
+        $num: ($i - 5) * 2;
+        #{$color}-#{$i}00: hsl(
+          var(#{$color}-h),
+          calc(var(#{$color}-s) * 0.9),
+          calc(var(#{$color}-l) - var(#{$color}-l) * #{"0." + $num})
+        );
+      }
+    }
+  } @else if $mode == "lighten" {
+    @for $i from 1 through 9 {
+      @if $i == 9 {
+        #{$color}-#{$i}00: var($color);
+      } @else if $i < 9 {
+        $num: (10 - $i) / 10;
+        #{$color}-#{$i}00: hsl(
+          var($color + "-h"),
+          calc(var(#{$color}-s) * 0.3),
+          calc(var(#{$color}-l) + (100% - var(#{$color}-l)) * #{$num})
+        );
+      }
+    }
+  } @else if $mode == "darken" {
+    @for $i from 1 through 9 {
+      @if $i == 1 {
+        #{$color}-100: var($color);
+      } @else if $i > 1 {
+        $num: $i;
+        #{$color}-#{$i}00: hsl(
+          var($color + "-h"),
+          calc(var(#{$color}-s) * 0.3),
+          calc(var(#{$color}-l) - var(#{$color}-l) * #{"0." + $num})
+        );
+      }
+    }
+  }
+}
+
+// define Color Variable
+@mixin define-color($varName, $color) {
+  // if $color is a string...
+  @if type-of($color) == "string" {
+    // .. if it contains the "var(--" syntax
+    @if str-index($color, "var(--") and str-index($color, "var(--") > 0 {
+      // use the existing color variables and assign them to the new ones
+      // including hsl values.
+      $color: str-replace($color, "var(");
+      $color: str-replace($color, ")");
+      $color-h: var(#{$color + "-h"});
+      $color-s: var(#{$color + "-s"});
+      $color-l: var(#{$color + "-l"});
+
+      #{$varName}: var($color);
+      #{$varName+"-h"}: $color-h;
+      #{$varName+"-s"}: $color-s;
+      #{$varName+"-l"}: $color-l;
+    }
+  } @else if type-of($color) == "color" {
+    $h: hue($color);
+    $s: saturation($color);
+    $l: lightness($color);
+
+    @include define-color-HSL($varName, $h, $s, $l);
+  }
+}
+
+// return color with different opacity value
+@function alpha($color, $opacity) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsla($color-h, $color-s, $color-l, $opacity);
+}
+
+// return color with different lightness value
+@function adjust-lightness($color, $lightnessMultiplier) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl($color-h, $color-s, calc(#{$color-l} * #{$lightnessMultiplier}));
+}
+
+@function adjust-color($color, $h: 1, $s: 1, $l: 1) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+
+  $hue: calc(#{$color-h} * #{$h});
+  $saturation: calc(#{$color-s} * #{$s});
+  $lightness: calc(#{$color-l} * #{$l});
+
+  @return hsl($hue, $saturation, $lightness);
+}
+
+// replace substring with another string
+// credits: https://css-tricks.com/snippets/sass/str-replace-function/
+@function str-replace($string, $search, $replace: "") {
+  $index: str-index($string, $search);
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace +
+      str-replace(
+        str-slice($string, $index + str-length($search)),
+        $search,
+        $replace
+      );
+  }
+  @return $string;
+}
+
+@mixin colors($colorVariables) {
+  @each $name, $color in $colorVariables {
+    @include define-color(#{"--" + $name}, $color);
+  }
+}
+
+// Mixes a color with white.
+///
+/// @argument {color} $color
+///
+/// @argument {number (percentage)} $percent
+///   The amount of white to be mixed in.
+///
+/// @return {color}
+///
+/// @example scss
+///   .element {
+///     background-color: tint(#6ecaa6, 40%);
+///   }
+///
+///   // CSS Output
+///   .element {
+///     background-color: #a8dfc9;
+///   }
+
+@function tint($color, $percent) {
+  @if not _is-color($color) {
+    @error "`#{$color}` is not a valid color for the `$color` argument in " +
+      "the `tint` mixin.";
+  } @else {
+    @return mix(#fff, $color, $percent);
+  }
+}
+
+/// Checks for a valid CSS color.
+///
+/// @argument {string} $color
+///
+/// @return {boolean}
+///
+/// @access private
+
+@function _is-color($color) {
+  @return (type-of($color) == color) or ($color == "currentColor");
+}
+
+@function shiftHue($color, $shift) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl(calc(#{$color-h} + $shifht), $color-s, $color-l);
+}
+
+@function darker($color, $multiplier) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl(
+    $color-h,
+    $color-s,
+    calc(#{$color-l} - #{$color-l} * #{$multiplier})
+  );
+}
+
+@function lighter($color, $multiplier) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl(
+    $color-h,
+    $color-s,
+    calc(#{$color-l} + (100% - #{$color-l}) * #{$multiplier})
+  );
+}
+
+@function saturate-color($color, $multiplier) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl($color-h, calc(#{$color-s} * #{$multiplier}), $color-l);
+}
+
+@function desaturate($color, $multiplier) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl(
+    $color-h,
+    calc(#{$color-s} - #{$color-s} * #{$multiplier}),
+    $color-l
+  );
+}
+
+@function grayscale($color) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl($color-h, 0%, $color-l);
+}
+
+@function complement($color) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+  @return hsl(calc($color-h + 180), $color-s, $color-l);
+}
+
+@mixin shade($color) {
+  $color: str-replace($color, "var(");
+  $color: str-replace($color, ")");
+  $color-h: var(#{$color + "-h"});
+  $color-s: var(#{$color + "-s"});
+  $color-l: var(#{$color + "-l"});
+}

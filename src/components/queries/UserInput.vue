@@ -25,36 +25,48 @@
                     <div>
                         <label for="input">
                             <h4> MeSH-Terms: </h4>
-                            <div class="form-control">
-                                <input type="radio" id="mesh-and-query" value="and_mesh" name="MeSH"
-                                    v-model="meshQueryType" checked />
-                                <label for="mesh-and-query">Combined MeSH-Terms</label>
-                                <input type="radio" id="mesh-or-query" value="or_mesh" name="MeSH"
-                                    v-model="meshQueryType" />
-                                <label for="mesh-or-query">Separate MeSH-Terms</label>
+
+                            <div class="form__group">
+                                <div class="radio__group radio__group--inline">
+                                    <div class="radio">
+                                        <input 
+                                        type="radio" 
+                                        class="radio__input" 
+                                        value="and_mesh" 
+                                        id="mesh-combined"
+                                        v-model="meshQueryType" 
+                                        checked />
+                                        <label for="mesh-combined"><span>Combined MeSH-Terms</span></label>
+                                    </div>
+
+                                    <div class="radio">
+                                        <input 
+                                        type="radio" 
+                                        class="radio__input"
+                                        value="or_mesh" 
+                                        id="mesh-separate"
+                                        v-model="meshQueryType" />
+                                        <label for="mesh-separate"><span>Separate MeSH-Terms</span></label>
+                                    </div>
+                                </div>
                             </div>
                         </label>
-                        <textarea id="meshTerms" class="form__control" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
-                            placeholder="Please seperate you entries via ','"></textarea>
+
+                        <MeshTerm ref="meshTerms"></MeshTerm>
+                        <!--{{ $refs.meshTerms.selected }}-->
+
+
+                        <!--textarea id="meshTerms" class="form__control" name="meshTerms" v-model.trim="meshTerms" rows="6" cols="33"
+                            placeholder="Please seperate you entries via ','"></textarea-->
                         <label for="input">
                             <h4> Blocklist: </h4>
                         </label>
-                        <textarea id="blockList"  class="form__control" name="blockList" v-model.trim="blockList" rows="6" cols="33"
-                            placeholder="Please seperate you entries via ','"></textarea>
-                    </div>
-                </keep-alive>
-                <br>
-                <h4>Query Type</h4>
-                <keep-alive>
-                    <div class="form-control">
-                        <input type="radio" id="query-genes" value="genes" name="query" v-model="queryType" />
-                        <label for="query-genes">Genes</label>
-                        <input type="radio" id="query-protein" value="protein" name="query" v-model="queryType"
-                            disabled />
-                        <label for="query-protein">Protein (in development)</label>
-                        <input type="radio" id="query-article" value="article" name="query" v-model="queryType"
-                            disabled />
-                        <label for="query-article">Article (in development)</label>
+
+                        <MeshTerm ref="blockList"></MeshTerm>
+                        <!--{{ $refs.blockList.selected }}-->
+
+                        <!--textarea id="blockList"  class="form__control" name="blockList" v-model.trim="blockList" rows="6" cols="33"
+                            placeholder="Please seperate you entries via ','"></textarea-->
                     </div>
                 </keep-alive>
                 <br>
@@ -111,15 +123,16 @@
 import BaseCard from '../UI/BaseCard.vue'
 import BaseButton from '../UI/BaseButton.vue';
 import BaseDialogNoButton from "../UI/BaseDialogNoButton.vue"
+import MeshTerm from '../UI/MeshTerm.vue'
 import exportFromJSON from "export-from-json"
 
 export default {
     data() {
         return {
             userInput: "",
-            meshTerms: "",
+            meshTerms: [],
             blockList: "",
-            queryType: null,
+            queryType: "genes",
             meshQueryType: "and_mesh",
             resultsBack: false,
             isLoading: false,
@@ -145,21 +158,6 @@ export default {
                     geneList.splice(i, 1);
                 }
             }
-            const meshList = this.meshTerms.split(",");
-            for (let i = 0; i < meshList.length; i++) {
-                meshList[i] = meshList[i].trim();
-                if (meshList[i].length === 0 || meshList[i].includes(" ")) {
-                    meshList.splice(i, 1);
-                }
-            }
-
-            const blockList = this.blockList.split(",");
-            for (let i = 0; i < blockList.length; i++) {
-                blockList[i] = blockList[i].trim();
-                if (blockList[i].length === 0 || blockList[i].includes(" ")) {
-                    blockList.splice(i, 1);
-                }
-            }
 
             if (this.userInput === "" || this.queryType === null) {
                 this.formInputIsInvalid = true;
@@ -171,6 +169,10 @@ export default {
             ////
             // Gene Query
             ////
+            
+            // get meshList and blockList from child components via $ref
+            var meshList = this.$refs.meshTerms.selected;
+            var blockList = this.$refs.blockList.selected;
 
             if (this.queryType === "genes") {
                 this.urlParameters += "mqt=" + this.meshQueryType + "&"
@@ -278,7 +280,7 @@ export default {
             return fileName
         },
     },
-    components: { BaseCard, BaseButton, BaseDialogNoButton }
+    components: { BaseCard, BaseButton, BaseDialogNoButton, MeshTerm }
 }
 </script>
 
